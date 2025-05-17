@@ -77,4 +77,16 @@ public class UserModel extends BaseEntity implements UserDetails {
         return true;
     }
 
+    @Override
+    public 	String getPassword(){
+        return null;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+
+
 }

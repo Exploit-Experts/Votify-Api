@@ -14,6 +14,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -26,13 +30,13 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers(HttpMethod.POST, "api/v1/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "api/v1/sessions/**").hasAnyAuthority("ASSOCIATE")
-                        .requestMatchers(HttpMethod.GET, "api/v1/agendas/**").hasAnyAuthority("ASSOCIATE")
-                        .requestMatchers("api/v1/sessions/**").hasAnyAuthority("ORGANIZER")
-                        .requestMatchers("api/v1/agendas/**").hasAnyAuthority("ORGANIZER")
-                        .requestMatchers(HttpMethod.POST, "api/v1/votes/**").hasAuthority("ASSOCIATE")
-                        .requestMatchers("api/v1/users/**").hasAnyAuthority("ADMIN", "ORGANIZER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/sessions/**").hasAnyAuthority("ASSOCIATE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/agendas/**").hasAnyAuthority("ASSOCIATE")
+                        .requestMatchers("/api/v1/sessions/**").hasAnyAuthority("ORGANIZER")
+                        .requestMatchers("/api/v1/agendas/**").hasAnyAuthority("ORGANIZER")
+                        .requestMatchers("/api/v1/votes/**").hasAuthority("ASSOCIATE")
+                        .requestMatchers("/api/v1/users/**").hasAnyAuthority("ADMIN", "ORGANIZER")
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**",
                                 "/swagger-resources/**", "/webjars/**").permitAll()
                         .anyRequest().authenticated()
@@ -54,5 +58,19 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.setAllowedOriginPatterns(Arrays.asList("http://localhost:*"));
+        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.addExposedHeader("Access-Control-Allow-Origin");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

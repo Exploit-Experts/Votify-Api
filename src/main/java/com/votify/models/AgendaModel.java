@@ -55,4 +55,6 @@ public class AgendaModel extends BaseEntity {
     public boolean hasVotingEnded() {
         return LocalDateTime.now().isAfter(this.getEndVotingAt());
     }
+
+
 }
