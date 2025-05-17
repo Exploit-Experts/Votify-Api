@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
@@ -28,6 +28,7 @@ public class SecurityConfiguration {
                                                     CustomAuthenticationEntryHandler authenticationEntryHandler) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
@@ -67,10 +68,11 @@ public class SecurityConfiguration {
         config.setAllowedOriginPatterns(Arrays.asList("http://localhost:*"));
         config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.addExposedHeader("Access-Control-Allow-Origin");
+        config.addExposedHeader("Authorization"); // <- Expor o token JWT no header
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }
